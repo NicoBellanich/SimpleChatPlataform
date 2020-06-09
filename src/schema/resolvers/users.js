@@ -10,7 +10,8 @@ const resolvers = {
     usuario: userController.getById,
   },
   Mutation: {
-    createUser: userController.CrearUsuario
+    createUser: userController.CrearUsuario,
+    singup: userController.SingUp
   },
 };
 

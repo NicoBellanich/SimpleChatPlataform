@@ -12,6 +12,19 @@ extend type Query {
   usuario(id: ID!): User
 }
 
+input SignupInput {
+  firstname: String!
+  lastname: String!
+  username: String!
+  password: String!
+}
+
+type AuthenticationResult {
+  user: User
+  jwt: String
+  authError: String
+}
+
 extend type Mutation {
   createUser(
     firstname: String
@@ -20,4 +33,5 @@ extend type Mutation {
     salt: String
     password: String
   ): User
+  singup(data: SignupInput!): AuthenticationResult!
 }

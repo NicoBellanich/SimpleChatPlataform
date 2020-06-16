@@ -16,7 +16,7 @@ const server = new ApolloServer({
   instrospection: true,
   playground: true,
   tracing: true,
-  context : { models}
+  context: { models }
 })
 
 server.applyMiddleware({ app })

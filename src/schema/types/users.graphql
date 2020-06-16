@@ -8,8 +8,25 @@ type User {
 }
 
 extend type Query {
-  usuarios: [User!]
-  usuario(id: ID!): User
+  users: [User!]
+  user(id: ID!): User
+}
+
+input SignupInput {
+  firstname: String!
+  lastname: String!
+  username: String!
+  password: String!
+}
+input SigninInput {
+  username: String!
+  password: String!
+}
+
+type AuthenticationResult {
+  user: User
+  jwt: String
+  authError: String
 }
 
 extend type Mutation {
@@ -20,4 +37,6 @@ extend type Mutation {
     salt: String
     password: String
   ): User
+  signUp(data: SignupInput!): AuthenticationResult
+  signIn(data: SigninInput!): AuthenticationResult
 }

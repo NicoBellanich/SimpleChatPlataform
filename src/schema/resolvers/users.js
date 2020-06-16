@@ -1,4 +1,4 @@
-import * as userController from "./../../../controllers/userController";
+import * as userController from './../../../controllers/userController'
 
 /*
  usuario :(obj,{idp}) => models.User.findByPk(idp)
@@ -6,13 +6,14 @@ import * as userController from "./../../../controllers/userController";
 
 const resolvers = {
   Query: {
-    usuarios: userController.findAll,
-    usuario: userController.getById,
+    users: userController.findAll,
+    user: userController.getById
   },
   Mutation: {
-    createUser: userController.CrearUsuario,
-    singup: userController.SingUp
-  },
-};
+    createUser: userController.createUser,
+    signUp: userController.signUp,
+    signIn: userController.signIn
+  }
+}
 
-export default resolvers;
+export default resolvers

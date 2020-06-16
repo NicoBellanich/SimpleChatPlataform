@@ -1,39 +1,50 @@
 
-import * as models from "./../models"
+import * as models from './../models'
+import { sign } from 'jsonwebtoken'
 
-export const findAll = () =>{
-    return models.User.findAll()
+export const findAll = () => {
+  return models.User.findAll()
 }
 
-export const getById = (obj,args) =>{
-    return models.User.findByPk(args.id)
+export const getById = (obj, args) => {
+  return models.User.findByPk(args.id)
 }
 
-export const CrearUsuario = (obj,{ firstname, lastname, username, salt, password })=> {
-    return models.User.create({
-      firstname,
-      lastname,
-      username,
-      salt,
-      password,
-    })
+export const createUser = (obj, { firstname, lastname, username, salt, password }) => {
+  return models.User.create({
+    firstname,
+    lastname,
+    username,
+    salt,
+    password
+  })
 }
 
-export const SingUp = async (obj,{data}) =>{
-   /*
-    console.log(data.firstname)
-    console.log(data.lastname)
-    console.log(data.username)
-    console.log(data.password)
-    */
-    const existe =  await models.User.findOne({where:{username:data.username}}) 
-    if (existe){
-        console.log("ya existe: ",existe.firstname, existe.username, existe.lastname)
-    } 
-    else{
-        console.log("No existe")
-        
-    }
-    
+export const signUp = async (obj, { data }) => {
+  const user = await SearchByUsername(data.username)
 
+  if (user) {
+    return { user: null, accessToken: null, authError: 'usuario ya creado' }
+  } else {
+    const newUser = await models.User.create(data)
+    const { id, username } = newUser
+    const accessToken = sign({ id, username }, 'secret', { expiresIn: '10d' })
+    return { user: newUser, jwt: accessToken, authError: null }
+  }
+}
+
+export const signIn = async (obj, { data }) => {
+  const user = await SearchByUsername(data.username)
+
+  if (user) {
+    const { id, username } = user
+    const accessToken = sign({ id, username }, 'secret', { expiresIn: '10d' })
+    return { user: user, jwt: accessToken, authError: null }
+  } else {
+    return { user: null, accessToken: null, authError: 'usuario no existe' }
+  }
+}
+
+const SearchByUsername = (data) => {
+  return models.User.findOne({ where: { username: data } })
 }

@@ -5,6 +5,8 @@ import * as models from './../models'
 
 import schema from './schema'
 
+import passportMiddleware from './passportMiddleware'
+
 require('dotenv').config()
 
 const port = process.env.PORT || 3004
@@ -16,8 +18,10 @@ const server = new ApolloServer({
   instrospection: true,
   playground: true,
   tracing: true,
-  context: { models }
+  context: async ({ req, res }) => ({ models, user: req.user })
 })
+
+app.use(passportMiddleware)
 
 server.applyMiddleware({ app })
 

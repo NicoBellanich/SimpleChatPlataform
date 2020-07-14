@@ -7,7 +7,8 @@ import * as userController from './../../../controllers/userController'
 const resolvers = {
   Query: {
     users: userController.findAll,
-    user: userController.getById
+    user: userController.getById,
+    currentUser: userController.currentUser
   },
   Mutation: {
     createUser: userController.createUser,

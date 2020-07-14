@@ -7,9 +7,12 @@ type User {
   password: String
 }
 
+
 extend type Query {
   users: [User!]
+  currentUser: User
   user(id: ID!): User
+ 
 }
 
 input SignupInput {
@@ -29,18 +32,7 @@ type AuthenticationResult {
   authError: String
 }
 
-input SignupInput {
-  firstname: String!
-  lastname: String!
-  username: String!
-  password: String!
-}
 
-type AuthenticationResult {
-  user: User
-  jwt: String
-  authError: String
-}
 
 extend type Mutation {
   createUser(

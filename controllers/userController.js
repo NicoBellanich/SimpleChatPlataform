@@ -1,17 +1,16 @@
-
-import * as models from './../models'
-import { sign } from 'jsonwebtoken'
-
-export const findAll = () => {
-  return models.User.findAll()
+export const findAll = (parent, args, context, info) => {
+  if (!context.user)  throw new Error('ups, seems you are not logged in') 
+  
+  return context.models.User.findAll()
 }
 
-export const getById = (obj, args) => {
-  return models.User.findByPk(args.id)
+export const getById = (obj, args, context, info) => {
+  return context.models.User.findByPk(args.id)
 }
 
-export const createUser = (obj, { firstname, lastname, username, salt, password }) => {
-  return models.User.create({
+export const createUser = (obj, args, context) => {
+  const { firstname, lastname, username, salt, password } = args
+  return context.models.User.create({
     firstname,
     lastname,
     username,
@@ -20,31 +19,34 @@ export const createUser = (obj, { firstname, lastname, username, salt, password 
   })
 }
 
-export const signUp = async (obj, { data }) => {
-  const user = await SearchByUsername(data.username)
+export const signUp = async (obj, { data }, context) => {
+  const user = await context.models.User.findByUsername({ username: data.username })
+  if (user) return { user: null, accessToken: null, authError: 'User already exist' }
 
-  if (user) {
-    return { user: null, accessToken: null, authError: 'usuario ya creado' }
-  } else {
-    const newUser = await models.User.create(data)
-    const { id, username } = newUser
-    const accessToken = sign({ id, username }, 'secret', { expiresIn: '10d' })
-    return { user: newUser, jwt: accessToken, authError: null }
+  const newUser = await context.models.User.create(data)
+  const accessToken = await newUser.getAccessToken()
+
+  return {
+    user: newUser,
+    jwt: accessToken,
+    authError: null
   }
 }
 
-export const signIn = async (obj, { data }) => {
-  const user = await SearchByUsername(data.username)
+export const signIn = async (obj, { data }, context) => {
+  const user = await context.models.User.findByUsername({ username: data.username })
+  if (!user) { return { user: null, accessToken: null, authError: 'User does not exist' } }
+  if (!user.passwordMatches(data.password)) { return { user: null, accessToken: null, authError: 'Wrong password' } }
 
-  if (user) {
-    const { id, username } = user
-    const accessToken = sign({ id, username }, 'secret', { expiresIn: '10d' })
-    return { user: user, jwt: accessToken, authError: null }
-  } else {
-    return { user: null, accessToken: null, authError: 'usuario no existe' }
+  const accessToken = user.getAccessToken()
+
+  return {
+    user: user,
+    jwt: accessToken,
+    authError: null
   }
 }
 
-const SearchByUsername = (data) => {
-  return models.User.findOne({ where: { username: data } })
+export const currentUser = (parent, args, context, info) => {
+  return context.user
 }
